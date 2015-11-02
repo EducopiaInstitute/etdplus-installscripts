@@ -132,6 +132,9 @@ $RUN_AS_INSTALLUSER RAILS_ENV=${APP_ENV} bundle exec rake install:setup_defaults
 
 # Fix up configuration files
 # 1. FITS
+# Uncomment config.fits_path setting if commented out
+$RUN_AS_INSTALLUSER sed -i -r 's/#[[:space:]]*config.fits_path[[:space:]]*=[[:space:]]*/config.fits_path = /' config/initializers/sufia.rb
+# Replace default FITS path
 $RUN_AS_INSTALLUSER sed -i "s@config.fits_path = \".*\"@config.fits_path = \"$FITS_DIR/$FITS_PACKAGE/fits.sh\"@" config/initializers/sufia.rb
 # 2. Set Google Analytics ID, if supplied and we aren't installing via Vagrant
 if [ -f ${BOOTSTRAP_DIR}/files/google_analytics_id -a $PLATFORM != "vagrant" ]; then

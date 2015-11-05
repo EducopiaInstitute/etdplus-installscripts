@@ -101,8 +101,15 @@ install -o root -m 400 ${BOOTSTRAP_DIR}/files/key $SSL_KEY
 apt-get install -y git sqlite3 libsqlite3-dev zlib1g-dev build-essential
 gem install --no-document rails -v "$RAILS_VERSION"
 
-# Pull application from git.
-$RUN_AS_INSTALLUSER git clone --branch "$HYDRA_HEAD_GIT_BRANCH" "$HYDRA_HEAD_GIT_REPO_URL" "$HYDRA_HEAD_DIR"
+# Pull application from git, using deployment key if specified.
+GIT_SSH="${BOOTSTRAP_DIR}/ssh.sh"
+if [ -n "$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY" ]; then
+  DEPLOY_KEY="${BOOTSTRAP_DIR}/files/$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY"
+else
+  DEPLOY_KEY=""
+fi
+$RUN_AS_INSTALLUSER -E GIT_SSH="$GIT_SSH" DEPLOY_KEY="$DEPLOY_KEY" \
+  git clone --branch "$HYDRA_HEAD_GIT_BRANCH" "$HYDRA_HEAD_GIT_REPO_URL" "$HYDRA_HEAD_DIR"
 cd $HYDRA_HEAD_DIR
 
 # Install PostgreSQL

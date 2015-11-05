@@ -3,7 +3,8 @@
 # Default values for main configuration settings
 
 HYDRA_HEAD="etdplus" # Name of the Hydra head.
-HYDRA_HEAD_GIT_REPO_URL="https://github.com/VTUL/ETDplus.git" # The git repository to pull changes from during setup.
+HYDRA_HEAD_GIT_REPO_URL="git@github.com:EducopiaInstitute/etdplus.git" # The git repository to pull changes from during setup.
+HYDRA_HEAD_GIT_REPO_DEPLOY_KEY="" # SSH deployment key, if any, for cloning above repository
 HYDRA_HEAD_GIT_BRANCH="master" # The branch of the repository to pull.
 SERVER_HOSTNAME="localhost" # The hostname of the server being installed.
 PASSENGER_REPO="/etc/apt/sources.list.d/passenger.list"

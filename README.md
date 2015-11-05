@@ -75,6 +75,13 @@ option.
 - `APP_ENV`: the Rails application environment in which the ETDplus
 application will be installed and run. This is either `development`
 or`production`.
+- `HYDRA_HEAD_GIT_REPO_URL`: the URL of the repository containing the ETDplus
+software. This URL should be one accessible via `git clone`.
+- `HYDRA_HEAD_GIT_REPO_DEPLOY_KEY`: If the `HYDRA_HEAD_GIT_REPO_URL` references
+a private repository then `HYDRA_HEAD_GIT_REPO_DEPLOY_KEY` can be used to
+designate an SSH deployment key used to clone the repository.  If the repository
+is public, or otherwise doesn't require an SSH key to clone, then
+`HYDRA_HEAD_GIT_REPO_DEPLOY_KEY` should be set to an empty string, "".
 - `SERVER_HOSTNAME`: the hostname of the Web server hosting the application.
 - `AWS_KEY_PAIR`: the AWS SSH key pair used to access the deployed server. The
 secret key of this SSH key *must* exist on the local system beforehand,
@@ -95,14 +102,31 @@ The `files/` directory is used to convey server-specific data such as the Web
 server certificate and key for HTTPS. Such files placed in `files/` will
 override application defaults.
 
-If a specific certificate is to be used then the certificate and key file should
-be placed in `files/` and named `cert` and `key` respectively. If no such files
-are present, the install scripts will generate a self-signed certificate and
-place the resultant `cert` and `key` files under `files/`.
+If a specific Web site certificate is to be used then the certificate and key
+file should be placed in `files/` and named `cert` and `key` respectively. If no
+such files are present, the install scripts will generate a self-signed
+certificate and place the resultant `cert` and `key` files under `files/`.
 
 A `config/secrets.yml` will be generated if none is present in
 `files/secrets.yml`.  This file will replace `$HYDRA_HEAD_DIR/config/secrets.yml`
 during installation.
+
+### Deployment keys
+
+If the ETDplus code is in a Git repository that requires an SSH key to be able
+to clone it then this private key file can be placed in the `files/` directory.
+The *filename* of this SSH private key file is then defined in the
+`HYDRA_HEAD_GIT_REPO_DEPLOY_KEY` setting.  (Do not specify the full pathname,
+only the filename under `files/`.)
+
+Private Git repositories are supported via the SSH transport.  A deployment key
+is supported, as mentioned above.  In addition, on the `vagrant` platform, SSH
+Agent forwarding is enabled to the VM that is created.  In this case, any SSH
+keys available in the local SSH Agent are also available in the VM.  Any Git
+repository that can be cloned via an SSH Agent key on the host system can thus
+also be cloned in the bootstrapped VM.  This can avoid the use of an explicit
+deployment key if the SSH Agent holds all the needed keys when using
+`bootstrap.sh` on the `vagrant` platform.
 
 Usage
 -----

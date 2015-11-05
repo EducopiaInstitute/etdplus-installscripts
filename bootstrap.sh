@@ -21,7 +21,7 @@ bootstrap_aws()
 {
   # Create packed userdata bootstrap script
   TMPDIR=`mktemp -d -t aws_bootstrap.XXXXX`
-  tar cJf ${TMPDIR}/files.tar.xz bootstrap_server.sh config.sh config_aws.sh install*.sh files
+  tar cJf ${TMPDIR}/files.tar.xz bootstrap_server.sh config.sh config_aws.sh install*.sh ssh.sh files
   base64 ${TMPDIR}/files.tar.xz > ${TMPDIR}/files.b64
   cat aws_bootstrapper_header.sh ${TMPDIR}/files.b64 > ${TMPDIR}/aws_bootstrapper.sh
   # Bring up AWS instance
@@ -69,6 +69,17 @@ fi
 # Read settings and platform overrides
 [ -f "${SCRIPTS_DIR}/config.sh" ] && . "${SCRIPTS_DIR}/config.sh"
 [ -f "${SCRIPTS_DIR}/config_${SERVER_ENV}.sh" ] && . "${SCRIPTS_DIR}/config_${SERVER_ENV}.sh"
+
+# Check that the deployment key exists in files/ if specified
+if [ -n "$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY" ]; then
+  if [ ! -f "files/$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY" ]; then
+    echo "Deployment key files/$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY not present---aborting."
+    exit 1
+  else
+    # Make sure permissions on deploy key are suitable
+    chmod 500 "files/$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY"
+  fi
+fi
 
 # Create an SSL certificate if none is already present
 SUBJECT="/C=US/ST=Virginia/O=Virginia Tech/localityName=Blacksburg/commonName=$SERVER_HOSTNAME/organizationalUnitName=University Libraries"

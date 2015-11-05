@@ -6,6 +6,8 @@ Vagrant.configure(2) do |config|
     vb.cpus = 2
     vb.memory = 3072
   end
+  # Enable SSH agent forwarding to make deployment easier for developers
+  config.ssh.forward_agent = true
   # Forward Solr port in VM to local machine
   config.vm.network :forwarded_port, host: 8983, guest: 8983
   # Forward Tomcat/Fedora port in VM to port 8888 on local machine

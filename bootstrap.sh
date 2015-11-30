@@ -20,10 +20,19 @@ bootstrap_vagrant()
 bootstrap_aws()
 {
   # Create packed userdata bootstrap script
-  TMPDIR=`mktemp -d -t aws_bootstrap.XXXXX`
-  tar cJf ${TMPDIR}/files.tar.xz bootstrap_server.sh config.sh config_aws.sh install*.sh ssh.sh files
-  base64 ${TMPDIR}/files.tar.xz > ${TMPDIR}/files.b64
-  cat aws_bootstrapper_header.sh ${TMPDIR}/files.b64 > ${TMPDIR}/aws_bootstrapper.sh
+  AWSDIR=`mktemp -d -t aws_bootstrap.XXXXX`
+  SEDDIR=`mktemp -d -t sedfiles.XXXXX`
+  # Strip comment lines from install scripts
+  for f in install*.sh config{,_aws}.sh; do
+    sed -e '/^[[:space:]]*#[^!]/d' "$f" > "${SEDDIR}/$f"
+    chmod +x "${SEDDIR}/$f"
+  done
+  cp -Rp bootstrap_server.sh ssh.sh files ${SEDDIR}
+  # Make sure these scripts are executable
+  chmod +x ${SEDDIR}/bootstrap_server.sh ${SEDDIR}/ssh.sh
+  tar -c -J --options xz:compression-level=9 -C ${SEDDIR} -f ${AWSDIR}/files.tar.xz bootstrap_server.sh config.sh config_aws.sh install*.sh ssh.sh files
+  base64 ${AWSDIR}/files.tar.xz > ${AWSDIR}/files.b64
+  cat aws_bootstrapper_header.sh ${AWSDIR}/files.b64 > ${AWSDIR}/aws_bootstrapper.sh
   # Bring up AWS instance
   ID=$(aws ec2 run-instances --image-id $AWS_AMI \
     --key-name $AWS_KEY_PAIR \
@@ -31,7 +40,7 @@ bootstrap_aws()
     --subnet-id $AWS_SUBNET_ID \
     --instance-type $AWS_INSTANCE_TYPE \
     --associate-public-ip-address \
-    --user-data file://${TMPDIR}/aws_bootstrapper.sh \
+    --user-data file://${AWSDIR}/aws_bootstrapper.sh \
     --block-device-mappings "[{\"DeviceName\":\"/dev/sda1\", \"Ebs\":{\"VolumeSize\":$AWS_EBS_SIZE}}]" \
     --output text \
     --query 'Instances[*].InstanceId')
@@ -47,7 +56,8 @@ bootstrap_aws()
   # Set descriptive name tag
   aws ec2 create-tags --resources $ID --tags Key=Name,Value=$SERVER_HOSTNAME
   # Clean up after ourselves
-  rm -rf $TMPDIR
+  rm -rf $AWSDIR
+  rm -rf $SEDDIR
 }
 
 # Process script arguments. Argument is server type: vagrant or aws; default: vagrant

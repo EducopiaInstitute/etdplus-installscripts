@@ -105,6 +105,8 @@ gem install --no-document rails -v "$RAILS_VERSION"
 GIT_SSH="${BOOTSTRAP_DIR}/ssh.sh"
 if [ -n "$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY" ]; then
   DEPLOY_KEY="${BOOTSTRAP_DIR}/files/$HYDRA_HEAD_GIT_REPO_DEPLOY_KEY"
+  # Make sure deploy key is accessible to $INSTALL_USER
+  chown $INSTALL_USER "$DEPLOY_KEY"
 else
   DEPLOY_KEY=""
 fi

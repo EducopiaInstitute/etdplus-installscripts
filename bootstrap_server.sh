@@ -23,6 +23,9 @@ fi
 [ -f "${SCRIPTS_DIR}/config.sh" ] && . "${SCRIPTS_DIR}/config.sh"
 [ -f "${SCRIPTS_DIR}/config_${PLATFORM}.sh" ] && . "${SCRIPTS_DIR}/config_${PLATFORM}.sh"
 
+# Make sure files in scripts are accessible
+chmod 511 "$SCRIPTS_DIR"
+
 # Update packages
 cd "$INSTALL_DIR"
 apt-get update

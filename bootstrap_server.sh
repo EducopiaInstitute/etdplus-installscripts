@@ -66,6 +66,9 @@ service postfix restart
 # Install ClamAV
 ${SCRIPTS_DIR}/install_clamav.sh $PLATFORM $SCRIPTS_DIR
 
+# Install bulk_extractor
+${SCRIPTS_DIR}/install_bulk_extractor.sh $PLATFORM $SCRIPTS_DIR
+
 # Install Sufia Data-Repo application
 ${SCRIPTS_DIR}/install_sufia_application.sh $PLATFORM $SCRIPTS_DIR
 

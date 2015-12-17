@@ -62,6 +62,10 @@ FITS_PACKAGE="fits-0.6.2"
 RUBY_PACKAGE="ruby2.2"
 # The version of Rails to install.
 RAILS_VERSION="~> 4.2"
+# The version of HashDB to install for bulk_extractor
+HASHDB_VERSION="2.0.1"
+# The version of bulk_extractor to install
+BULK_EXTRACTOR_VERSION="1.5.5"
 RUN_AS_SOLR_USER="sudo -H -u $SOLR_USER"
 POSTGRESQL_COMMAND="sudo -i -u postgres"
 DB_NAME="$HYDRA_HEAD"

@@ -97,9 +97,9 @@ mkdir -p $SSL_KEY_DIR
 install -o root -m 444 ${BOOTSTRAP_DIR}/files/cert $SSL_CERT
 install -o root -m 400 ${BOOTSTRAP_DIR}/files/key $SSL_KEY
 
-# Install Rails gem
+# Install prerequisites for Rails gems
 apt-get install -y git sqlite3 libsqlite3-dev zlib1g-dev build-essential
-gem install --no-document rails -v "$RAILS_VERSION"
+gem install bundler
 
 # Pull application from git, using deployment key if specified.
 GIT_SSH="${BOOTSTRAP_DIR}/ssh.sh"

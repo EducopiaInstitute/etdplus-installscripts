@@ -60,8 +60,6 @@ JDK_HOME="/usr/lib/jvm/java-8-oracle"
 FITS_PACKAGE="fits-0.6.2"
 # The version of Ruby to install.
 RUBY_PACKAGE="ruby2.2"
-# The version of Rails to install.
-RAILS_VERSION="~> 4.2"
 # The version of HashDB to install for bulk_extractor
 HASHDB_VERSION="2.0.1"
 # The version of bulk_extractor to install

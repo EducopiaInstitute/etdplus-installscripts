@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # Install Solr and set up Solr core
 # Note that this must be done after installing the Sufia application because it
 # uses configuration files from the "solr_conf" directory in setting up the core.
+set -o errexit -o nounset -o xtrace -o pipefail
 
 # Read settings and environmental overrides
 # $1 = platform (aws or vagrant); $2 = path to install scripts

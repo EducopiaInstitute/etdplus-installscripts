@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # Bring up a server and install the Data Repository application either under
 # Vagrant or AWS.  For AWS install, the awscli software is expected to be
 # installed already on the local machine doing the bootstrapping, and the
 # appropriate AWS credentials set in the AWS_ACCESS_KEY and AWS_SECRET_KEY
 # environment variables.
+set -o errexit -o nounset -o pipefail
 
 bootstrap_vagrant()
 {

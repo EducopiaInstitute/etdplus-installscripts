@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-# Install Data-Repo Sufia application
+# Install Sufia application
+set -o errexit -o nounset -o xtrace -o pipefail
 
 PLATFORM=$1
 BOOTSTRAP_DIR=$2

@@ -17,8 +17,6 @@ APP_ENV="development"
 # Name of Sufia Solr core
 SOLR_CORE="$APP_ENV"
 INSTALL_DIR="/home/$INSTALL_USER"
-# Where FITS will be installed.
-FITS_DIR="$INSTALL_DIR/fits"
 # Where the Hydra head will be located.
 HYDRA_HEAD_DIR="$INSTALL_DIR/$HYDRA_HEAD"
 # The directory in which the Fedora data lives

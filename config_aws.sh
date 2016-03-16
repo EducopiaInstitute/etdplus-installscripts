@@ -21,6 +21,7 @@ INSTALL_DIR="/home/$INSTALL_USER"
 HYDRA_HEAD_DIR="$INSTALL_DIR/$HYDRA_HEAD"
 # The directory in which the Fedora data lives
 FEDORA4_DATA="$INSTALL_DIR/fedora-data"
+DB_USER="$INSTALL_USER"
 RUN_AS_INSTALLUSER="sudo -H -u $INSTALL_USER"
 # AWS key pair used to connect to new instance
 AWS_KEY_PAIR="data_repo"

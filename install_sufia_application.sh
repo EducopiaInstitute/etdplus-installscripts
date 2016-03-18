@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-# Install Data-Repo Sufia application
+# Install Sufia application
+set -o errexit -o nounset -o xtrace -o pipefail
 
 PLATFORM=$1
 BOOTSTRAP_DIR=$2
@@ -15,13 +16,15 @@ echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /u
 apt-get install -y oracle-java8-installer
 update-java-alternatives -s java-8-oracle
 
-# Install FITS
+# Install FITS to /opt/fits
 apt-get install -y unzip
-$RUN_AS_INSTALLUSER mkdir -p $FITS_DIR
-cd "$FITS_DIR"
-$RUN_AS_INSTALLUSER wget --quiet "http://projects.iq.harvard.edu/files/fits/files/${FITS_PACKAGE}.zip"
-$RUN_AS_INSTALLUSER unzip -q ${FITS_DIR}/${FITS_PACKAGE}.zip
-chmod a+x ${FITS_DIR}/${FITS_PACKAGE}/fits.sh
+TMPFILE=$(mktemp -d)
+cd "$TMPFILE"
+wget --quiet "http://projects.iq.harvard.edu/files/fits/files/${FITS_PACKAGE}.zip"
+unzip -q "${FITS_PACKAGE}.zip" -d /opt
+ln -sf "/opt/${FITS_PACKAGE}" /opt/fits
+chmod a+x /opt/fits/fits.sh
+rm -rf "$TMPFILE"
 cd $INSTALL_DIR
 
 # Install ffmpeg
@@ -75,7 +78,7 @@ limit_req_zone \$binary_remote_addr zone=clients:1m rate=${NGINX_CLIENT_RATE};
 server {
     listen 80;
     listen 443 ssl;
-    client_max_body_size 200M;
+    client_max_body_size ${NGINX_MAX_UPLOAD_SIZE};
     passenger_min_instances ${PASSENGER_INSTANCES};
     limit_req zone=clients burst=${NGINX_CLIENT_BURST} ${NGINX_BURST_OPTION};
     root ${HYDRA_HEAD_DIR}/public;
@@ -123,9 +126,6 @@ $RUN_AS_INSTALLUSER cp ${BOOTSTRAP_DIR}/files/secrets.yml "$HYDRA_HEAD_DIR/confi
 # Setup the application
 if [ "$APP_ENV" = "production" ]; then
   $RUN_AS_INSTALLUSER bundle install --without development test
-  # Install Application secret key
-  APP_SECRET=$($RUN_AS_INSTALLUSER RAILS_ENV=${APP_ENV} bundle exec rake secret)
-  $RUN_AS_INSTALLUSER sed --in-place=".bak" --expression="s|<%= ENV\[\"SECRET_KEY_BASE\"\] %>|$APP_SECRET|" "$HYDRA_HEAD_DIR/config/secrets.yml"
 else
   $RUN_AS_INSTALLUSER bundle install
 fi
@@ -138,23 +138,3 @@ fi
 
 # Create default Admin user
 $RUN_AS_INSTALLUSER RAILS_ENV=${APP_ENV} bundle exec rake install:setup_defaults
-
-# Fix up configuration files
-# 1. FITS
-# Uncomment config.fits_path setting if commented out
-$RUN_AS_INSTALLUSER sed -i -r 's/#[[:space:]]*config.fits_path[[:space:]]*=[[:space:]]*/config.fits_path = /' config/initializers/sufia.rb
-# Replace default FITS path
-$RUN_AS_INSTALLUSER sed -i "s@config.fits_path = \".*\"@config.fits_path = \"$FITS_DIR/$FITS_PACKAGE/fits.sh\"@" config/initializers/sufia.rb
-# 2. Set Google Analytics ID, if supplied and we aren't installing via Vagrant
-if [ -f ${BOOTSTRAP_DIR}/files/google_analytics_id -a $PLATFORM != "vagrant" ]; then
-  # Uncomment config.google_analytics_id setting
-  $RUN_AS_INSTALLUSER sed -i "s/# config.google_analytics_id/config.google_analytics_id/" "$HYDRA_HEAD_DIR/config/initializers/sufia.rb"
-  # Set config.google_analytics_id to the one in ${BOOTSTRAP_DIR}/files/google_analytics_id
-  $RUN_AS_INSTALLUSER sed -i "s/config.google_analytics_id = '.*'/config.google_analytics_id = '$(cat ${BOOTSTRAP_DIR}/files/google_analytics_id)'/" "$HYDRA_HEAD_DIR/config/initializers/sufia.rb"
-fi
-# 3. Make the solr.yml file point to an appropriate $APP_ENV core
-sed -i '/production:/ {N; s@^production:.*core0@production:\n  url: http://localhost:8983/solr/production@}' config/solr.yml
-# 4. Make the blacklight.yml file point to an appropriate $APP_ENV core
-sed -i '/production:/ {N; N; s@^production:\(.*\)/blacklight-core@production:\1/production@}' config/blacklight.yml
-# 5. Make the fedora.yml point to Tomcat 7 port, not to hydra-jetty port 8983
-sed -i 's/url:\(.*\):8983/url:\1:8080/' config/fedora.yml

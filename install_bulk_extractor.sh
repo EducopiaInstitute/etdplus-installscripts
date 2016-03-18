@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # Install Bulk Extractor
+set -o errexit -o nounset -o xtrace -o pipefail
 
 # Read settings and environmental overrides
 # $1 = platform (aws or vagrant); $2 = path to install scripts

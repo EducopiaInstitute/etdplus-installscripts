@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # Install ClamAV
+set -o errexit -o nounset -o xtrace -o pipefail
 
 # Read settings and environmental overrides
 # $1 = platform (aws or vagrant); $2 = path to install scripts
@@ -9,3 +10,4 @@
 
 cd "$INSTALL_DIR"
 apt-get install -y clamav libclamav-dev
+freshclam --quiet

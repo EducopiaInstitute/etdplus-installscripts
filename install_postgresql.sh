@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # Install PostgreSQL
+set -o errexit -o nounset -o xtrace -o pipefail
 
 # Read settings and environmental overrides
 # $1 = platform (aws or vagrant); $2 = path to install scripts
@@ -9,22 +10,29 @@
 
 cd "$INSTALL_DIR"
 
-apt-get install -y postgresql libpq-dev
-$POSTGRESQL_COMMAND psql -c "CREATE USER ${INSTALL_USER} WITH PASSWORD '${DB_PASS}';"
-$POSTGRESQL_COMMAND psql -c "CREATE DATABASE ${DB_NAME} WITH OWNER ${INSTALL_USER} ENCODING 'UTF8';"
-
-# Create new config/database.yml that uses PostgreSQL as a DB
-cat <<EOF > "${HYDRA_HEAD_DIR}/config/database.yml"
-test:
-  adapter: sqlite3
-  pool: 5
-  timeout: 5000
-  database: db/test.sqlite3
-
-${APP_ENV}:
-  adapter: postgresql
-  encoding: UTF8
-  database: ${DB_NAME}
-  username: ${INSTALL_USER}
-  password: ${DB_PASS}
-EOF
+apt-get install -y libpq-dev
+case $DB_IS_REMOTE in
+  [Yy][Ee][Ss])
+    echo "Assuming DB is on remote server."
+    apt-get install -y postgresql-client
+    PGPASSFILE=$(mktemp)
+    echo "${DB_HOST}:${DB_PORT}:${DB_ADMIN_DB}:${DB_ADMIN_USER}:${DB_ADMIN_PASS}" > "$PGPASSFILE"
+    chmod 0600 "$PGPASSFILE"
+    export PGHOST=$DB_HOST
+    export PGPORT=$DB_PORT
+    export PGUSER=$DB_ADMIN_USER
+    export PGDATABASE=$DB_ADMIN_DB
+    export PGPASSFILE
+    psql -c "DROP DATABASE IF EXISTS ${DB_NAME};"
+    psql -c "DROP USER IF EXISTS ${DB_USER};"
+    psql -c "CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
+    psql -c "CREATE DATABASE ${DB_NAME} WITH OWNER ${DB_USER} ENCODING 'UTF8';"
+    rm "$PGPASSFILE"
+    ;;
+  *)
+    echo "Assuming DB is local."
+    apt-get install -y postgresql
+    sudo -u postgres psql -c "CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
+    sudo -u postgres psql -c "CREATE DATABASE ${DB_NAME} WITH OWNER ${DB_USER} ENCODING 'UTF8';"
+    ;;
+esac

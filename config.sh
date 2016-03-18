@@ -26,6 +26,8 @@ NGINX_SITE="$NGINX_CONF_DIR/sites-available/$HYDRA_HEAD.site"
 NGINX_CLIENT_RATE="75r/s"
 NGINX_CLIENT_BURST="500"
 NGINX_BURST_OPTION="nodelay" # Should be "nodelay" or ""
+# Cap the size of uploads
+NGINX_MAX_UPLOAD_SIZE="200M"
 # Where the TLS certificate resides
 SSL_CERT_DIR="/etc/ssl/local/certs"
 SSL_CERT="$SSL_CERT_DIR/$HYDRA_HEAD-crt.pem"
@@ -65,6 +67,12 @@ HASHDB_VERSION="2.0.1"
 # The version of bulk_extractor to install
 BULK_EXTRACTOR_VERSION="1.5.5"
 RUN_AS_SOLR_USER="sudo -H -u $SOLR_USER"
-POSTGRESQL_COMMAND="sudo -i -u postgres"
-DB_NAME="$HYDRA_HEAD"
+# Is PostgreSQL running on a remote system?
+DB_IS_REMOTE="NO"
+DB_ADMIN_USER="postgres"
+DB_ADMIN_PASS="MyAdminPW"
+DB_ADMIN_DB="postgres"
+DB_NAME="etdplus"
 DB_PASS="changeme"
+DB_HOST="localhost"
+DB_PORT="5432"

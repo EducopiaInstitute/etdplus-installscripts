@@ -13,7 +13,7 @@ cd "$INSTALL_DIR/bulk_extractor/hashdb/"
 
 apt-get install -y gcc g++ libxml2-dev libssl-dev libtre-dev pkg-config libtool
 
-$RUN_AS_INSTALLUSER wget --quiet "http://digitalcorpora.org/downloads/hashdb/hashdb-${HASHDB_VERSION}.tar.gz"
+$RUN_AS_INSTALLUSER wget --quiet "http://digitalcorpora.org/downloads/hashdb/old/hashdb-${HASHDB_VERSION}.tar.gz"
 $RUN_AS_INSTALLUSER tar -xzf "./hashdb-${HASHDB_VERSION}.tar.gz" --strip-components=1
 
 $RUN_AS_INSTALLUSER ./configure

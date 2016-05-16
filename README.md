@@ -1,18 +1,16 @@
 Install Scripts for ETDplus Application
 =======================================
 
-These scripts install the [ETDplus application](https://github.com/EducopiaInstitute/etdplus) on a target server. They can be used to install the application either to a VM under VirtualBox via[Vagrant](https://www.vagrantup.com/) or to a server running under Amazon Web Services (AWS).
+These scripts install the [ETDplus application](https://github.com/EducopiaInstitute/etdplus) on a target server. They can be used to install the application either to a VM under VirtualBox or to a server running under Amazon Web Services (AWS). Installation is done via [Vagrant](https://www.vagrantup.com/).
 
-When installing the ETDplus application, first, application settings are configured to determine how it is to be installed on the server. Supplementary files such as Web server certificates can also be placed in the `files/` directory for deployment to the installed application. Next, the `bootstrap.sh` script is used to set up the server and deploy the application on the chosen platform: `vagrant` or `aws`.
+When installing the ETDplus application, first, application settings are configured to determine how it is to be installed on the server. Supplementary files such as Web server certificates can also be placed in the `files/` directory for deployment to the installed application. Next, the `vagrant up` command is used to set up the server and deploy the application on the chosen platform: `vagrant` or `aws`. To deploy to AWS, select the `aws` Vagrant provider: `vagrant up --provider aws`. If no provider is specified, it defaults to VirtualBox, which will set up a local VM.
 
 Installation
 ------------
 
 These scripts are intended to be run on a Unix-like system. They are tested to work on Mac OSX.
 
-To utilise the `vagrant` option, [Vagrant](https://www.vagrantup.com/) must already been installed on the local system with the [VirtualBox](http://www.virtualbox.org) provider working.
-
-For the `aws` option to work, [awscli](https://aws.amazon.com/cli/) must be installed and configured on the local system. (Under Mac OSX, this is most easily done using [Homebrew](http://brew.sh/): `brew install awscli`.) In particular, `awscli` must be configured correctly to access the AWS account under which the new server will be installed and have the necessary EC2 permissions to create new servers, etc.
+To use these scripts, [Vagrant](https://www.vagrantup.com/) must already been installed on the local system with the [VirtualBox](http://www.virtualbox.org) provider working. For provisioning to AWS, the `aws` provider must also be installed. This can be done by executing the following command, which will install the `aws` Vagrant provider plugin: `vagrant plugin install vagrant-aws`.
 
 Finally, these install scripts must be installed on the local machine. This is most easily done by cloning the[EducopiaInstitute/etdplus-installscripts](https://github.com/EducopiaInstitute/etdplus-installscripts) repository from GitHub:
 
@@ -66,16 +64,25 @@ To install the ETDplus application from scratch on a server using the current lo
 
 ```
 cd /path/to/install/scripts
-./bootstrap.sh PLATFORM
+vagrant up
 ```
 
-Where `PLATFORM` is either `vagrant` or `aws`. (Note, in the information below, where `$VAR` appears, you should substitute it with the value of the `$VAR` setting in the appropriate configuration file. Do not use `$VAR` directly in the example commands below.)
+This will install to a local VM. To install to AWS do the following:
 
-### vagrant
+```
+cd /path/to/install/scripts
+vagrant up --provider aws
+```
 
-In the case of the `vagrant` option, a VM will be brought up and configured in the current directory. The ETDplus application is accessible on the local machine from a Web browser at `https://$SERVER_HOSTNAME:4443`.
+IMPORTANT: Make sure that `AWS_KEYPAIR_PATH` is defined either in your current environment or in the `config_aws.sh` configuration file to point to the directory in which your `AWS_KEY_PAIR` resides. This is necessary to locate the AWS private key used to access the server being provisioned so that Vagrant can log in to it after creation and set up the ETDplus application using the installation scripts. Failure to define `AWS_KEYPAIR_PATH` (or `AWS_KEY_PAIR`) will cause `vagrant up --provider aws` to fail.
 
-You can use `vagrant ssh` to log in to this VM when it is up. When logged out of the VM, `vagrant halt` can be used to shut down the VM. The command `vagrant destroy` will destroy it entirely, requiring another `bootstrap.sh vagrant` to recreate it.
+(Note, in the information below, where `$VAR` appears, you should substitute it with the value of the `$VAR` setting in the appropriate configuration file. Do not use `$VAR` directly in the example commands below.)
+
+### Local VM
+
+In the case of the `vagrant up` option, a VM will be brought up and configured in the current directory. The ETDplus application is accessible on the local machine from a Web browser at `https://$SERVER_HOSTNAME:4443`.
+
+You can use `vagrant ssh` to log in to this VM when it is up. When logged out of the VM, `vagrant halt` can be used to shut down the VM. The command `vagrant destroy` will destroy it entirely, requiring another `vagrant up` to recreate it.
 
 Several ports in the running VM are made accessible on the local machine. Accessing the local port in a Web browser will actually result in the forwarded port being accessed on the VM. These ports are as follows:
 
@@ -92,14 +99,20 @@ Similarly, to access the Fedora 4 REST endpoint in the VM from the local machine
 
 NB: Vagrant forwards these ports to the VM running on `localhost` from all configured interfaces on the system. This includes the configured WAN interface. Unless otherwise firewalled to deny such traffic, the bootstrapped VM will be available externally across the network. E.g., if the WAN interface is configured to respond as system.example.com, then users will be able to access the ETDplus application running in the VM via the URL`https://system.example.com:4443`. External users will be able to access Solr and Fedora 4 in the VM in similar fashion.
 
-### aws
+### AWS
 
-For the `aws` option, a server running the application will be provisioned in AWS. After a while, it should be possible to log in to this machine via SSH:
+For the `vagrant up --provider aws` option, a server running the application will be provisioned in AWS. After a while, it should be possible to log in to this machine via SSH:
 
 ```
 ssh -i /path/to/$AWS_KEY_PAIR ubuntu@$SERVER_HOSTNAME
 ```
 
-The installation and setup of the ETDplus application and associated software could take quite a while. You may observe its progress when logged in to the AWS server by looking at the file `/var/log/cloud-init-output.log`.
+Or, more simply, from the scripts directory you can issue the following command:
+
+```
+vagrant ssh
+```
+
+The installation and setup of the ETDplus application and associated software could take quite a while. Its progress will be logged to the screen during the execution of `vagrant up --provider aws`.
 
 When installation is complete and services are running, you can access the application via this URL: `https://$SERVER_HOSTNAME`

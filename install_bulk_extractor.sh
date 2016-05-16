@@ -11,7 +11,7 @@ set -o errexit -o nounset -o xtrace -o pipefail
 $RUN_AS_INSTALLUSER mkdir -p "$INSTALL_DIR/bulk_extractor/hashdb"
 cd "$INSTALL_DIR/bulk_extractor/hashdb/"
 
-apt-get install -y gcc g++ libxml2-dev libssl-dev libtre-dev pkg-config libtool
+apt-get install -y gcc g++ libxml2-dev libssl-dev libtre-dev pkg-config libtool make
 
 $RUN_AS_INSTALLUSER wget --quiet "http://digitalcorpora.org/downloads/hashdb/old/hashdb-${HASHDB_VERSION}.tar.gz"
 $RUN_AS_INSTALLUSER tar -xzf "./hashdb-${HASHDB_VERSION}.tar.gz" --strip-components=1

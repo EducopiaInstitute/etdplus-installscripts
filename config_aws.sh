@@ -11,9 +11,9 @@ INSTALL_USER="ubuntu"
 # The hostname of the server being installed.
 SERVER_HOSTNAME="52.5.42.55"
 # AWS Elastic IP pointing to $SERVER_HOSTNAME
-AWS_ELASTIC_IP="eipalloc-fe64959a"
+AWS_ELASTIC_IP="52.5.42.55"
 # RAILS_ENV to run under: "development" or "production"
-APP_ENV="development"
+APP_ENV="production"
 # Name of Sufia Solr core
 SOLR_CORE="$APP_ENV"
 INSTALL_DIR="/home/$INSTALL_USER"
@@ -25,6 +25,10 @@ DB_USER="$INSTALL_USER"
 RUN_AS_INSTALLUSER="sudo -H -u $INSTALL_USER"
 # AWS key pair used to connect to new instance
 AWS_KEY_PAIR="data_repo"
+# Local directory in which AWS_KEY_PAIR resides
+AWS_KEYPAIR_PATH="~/.ssh"
+# The AWS region in which to deploy
+AWS_REGION="us-east-1"
 # The AMI to be used for the newly-created AWS instance
 AWS_AMI="ami-d05e75b8"
 # The size in GB of the AWS instance EBS storage

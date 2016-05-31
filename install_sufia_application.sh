@@ -37,6 +37,9 @@ apt-get install -y ffmpeg
 curl -sL https://deb.nodesource.com/setup | bash -
 apt-get install -y nodejs
 
+# Install zip
+apt-get install -y zip
+
 # Install Redis, ImageMagick, PhantomJS, and Libre Office
 apt-get install -y redis-server imagemagick phantomjs libreoffice
 # Install Ruby via Brightbox repository

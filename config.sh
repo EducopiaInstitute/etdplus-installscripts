@@ -37,7 +37,7 @@ SSL_KEY="$SSL_KEY_DIR/$HYDRA_HEAD-key.pem"
 # User under which Solr runs.  We adopt the default, "solr"
 SOLR_USER="solr"
 # Which Solr version we will install
-SOLR_VERSION="5.2.1"
+SOLR_VERSION="5.5.1"
 SOLR_MIRROR="http://www.apache.org/dist/lucene/solr/$SOLR_VERSION/"
 SOLR_DIST="solr-$SOLR_VERSION"
 # The directory under which we will install Solr.
